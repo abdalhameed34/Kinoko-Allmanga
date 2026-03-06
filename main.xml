@@ -1,5 +1,3 @@
-<list id="manga_list">
-    <item>
-        <text text="${item.title}" textSize="16" />
-    </item>
-</list>
+<center>
+    <text text="THE WIDGET IS ALIVE!" textSize="24" textColor="hex(#000000)" bold="true" />
+</center>
