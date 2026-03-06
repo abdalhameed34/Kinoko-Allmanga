@@ -1,27 +1,25 @@
-class MockCollection extends glib.Collection {
-    constructor(data) {
-        super(data);
-    }
-
-    reload(_, cb) {
-        let item = glib.DataItem.new();
-        item.title = "THE DATA BINDING WORKS!";
-        
-        this.setData([item]);
-        cb();
-        return true;
-    }
-}
-
 class MainController extends Controller {
     load(data) {
-        // Find the list (which should work now that it's inside a column)
-        this.list = this.findElement('manga_list');
+        // 1. Find our newly scaffolded list
+        this.list = this.findElement('list');
         
-        this.collection = new MockCollection(data);
+        // 2. Create a basic, native collection
+        let safeCollection = glib.Collection.new();
         
+        // 3. Override it with our test data
+        safeCollection.reload = function(page, cb) {
+            let item = glib.DataItem.new();
+            item.title = "THE REFRESH LAYOUT WORKED!";
+            item.subtitle = "The Unbounded Height error is fixed.";
+            
+            this.setData([item]);
+            if (cb) cb(); // Safely call the callback
+            return true;
+        };
+        
+        // 4. Bind the data to the UI
         if (this.list) {
-            this.list.setCollection(this.collection);
+            this.list.setCollection(safeCollection);
         }
     }
 }
