@@ -1,7 +1,5 @@
-<list id="manga_list">
-    <item>
-        <column>
-            <text text="${item.title}" textSize="16" />
-        </column>
-    </item>
-</list>
+<page background="hex(#ffffff)">
+    <center>
+        <text text="Hello World" textSize="20" textColor="hex(#000000)" />
+    </center>
+</page>
