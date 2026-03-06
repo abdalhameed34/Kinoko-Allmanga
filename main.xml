@@ -1,4 +1,4 @@
-<list id="manga_list">
+<list id="manga_list" layout_width="match_parent" layout_height="match_parent">
     <item>
         <column padding="16">
             <text text="${item.title}" textSize="18" textColor="#000000" bold="true" />
