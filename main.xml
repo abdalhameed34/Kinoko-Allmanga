@@ -1,3 +1,11 @@
-<center>
-    <text text="THE WIDGET IS ALIVE!" textSize="24" textColor="hex(#000000)" bold="true" />
-</center>
+<list id="manga_list">
+    <item>
+        <row padding="8">
+            <image src="${item.picture}" width="80" height="110" scaleType="centerCrop" radius="4" background="hex(#e0e0e0)" />
+            <column margin="12,0,0,0">
+                <text text="${item.title}" textSize="16" maxLines="2" bold="true" />
+                <text text="${item.subtitle}" textSize="12" textColor="hex(#888888)" margin="0,4,0,0" />
+            </column>
+        </row>
+    </item>
+</list>
