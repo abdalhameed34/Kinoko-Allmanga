@@ -1,20 +1,15 @@
-// 1. We formally declare a strict Collection class
 class MockCollection extends glib.Collection {
     constructor(data) {
         super(data);
     }
 
-    // 2. We use the built-in override method properly
     reload(_, cb) {
         let item = glib.DataItem.new();
-        item.title = "CHALLENGE COMPLETED!";
-        item.subtitle = "The class structure was the missing key.";
-        
-        // A bright red placeholder image so it's impossible to miss
-        item.picture = "https://via.placeholder.com/150/ff0000/ffffff?text=SUCCESS"; 
+        item.title = "DATA BINDING WORKS!";
+        item.subtitle = "The XML layout was the culprit.";
         
         this.setData([item]);
-        cb.apply(null);
+        cb(); // Simplified from cb.apply(null) to be as safe as possible
         return true;
     }
 }
@@ -22,8 +17,6 @@ class MockCollection extends glib.Collection {
 class MainController extends Controller {
     load(data) {
         this.list = this.findElement('manga_list');
-        
-        // 3. Initialize our formal class
         this.collection = MockCollection.new(data);
         
         if (this.list) {
