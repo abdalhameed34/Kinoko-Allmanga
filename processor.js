@@ -1,80 +1,45 @@
+// processor.js
+// Processor will be used in two satuations
+//   1. Load manga pictures.
+//   2. Detect if a manga has new chapter.  
 class MangaProcesser extends Processor {
-    get key() {
-        return this._key;
-    }
+    // The unique identifier for detecting which manga chapter is processing on.
+    get key();
 
-    set key(val) {
-        this._key = val;
-    }
+    /**
+     * Save the loading state, could be called in `load` method.
+     *
+     * @param {bool} complete, determie the loading complete or not.
+     * @param {*} state, for `load` restart. 
+     */
+    save(complete, state);
 
-    save(complete, state) {
-        this._complete = complete;
-        this._state = state;
-    }
+    /**
+     * Start load pictures, need override
+     * 
+     * @param {*} state The saved state.
+     * @return Promise 
+     */
+    load(state);
 
-    async load(state) {
-        try {
-            // Note: You will need to replace this with the exact route for reading a chapter
-            const url = `https://allmanga.to/read/${this.key}`; 
-            
-            // Fetch the chapter page HTML
-            const response = await fetch(url);
-            const html = await response.text();
-            
-            // Extract image URLs using a regex tailored to AllManga's DOM structure
-            // Example: <img class="chapter-img" src="https://example.com/page1.jpg" />
-            const imgRegex = /<img[^>]+src="([^">]+)"/ig; 
-            let match;
-            let pictureList = [];
-            
-            while ((match = imgRegex.exec(html)) !== null) {
-                pictureList.push({
-                    url: match[1],
-                    // Referer is often required to bypass image hotlink protection
-                    headers: { "Referer": "https://allmanga.to" } 
-                });
-            }
+     // Called in `dispose`, need override
+    unload();
 
-            if (pictureList.length > 0) {
-                this.setData(pictureList);
-                this.save(true, null);
-            } else {
-                throw new Error("No images found. AllManga might require HeadlessWebView to evaluate JS.");
-            }
+    /**
+     * Check for new chapter, need override
+     * 
+     * @return Promise<{title, key}> The information of last chapter 
+     */
+    checkNew();
 
-        } catch (error) {
-            console.log(`[MangaProcesser] Load Error: ${error}`);
-            this.save(false, state);
-        }
-    }
-
-    unload() {
-        // Clean up resources if necessary
-    }
-
-    async checkNew() {
-        try {
-            // Fetch the manga's main details page to find the latest chapter release
-            const url = `https://allmanga.to/manga/${this.key}`;
-            const response = await fetch(url);
-            const html = await response.text();
-            
-            // Example regex to find the latest chapter link and title
-            const latestChapterRegex = /<a[^>]+href="[^"]+\/chapter-([^"]+)"[^>]*>(Chapter [^<]+)<\/a>/i;
-            const match = latestChapterRegex.exec(html);
-            
-            if (match) {
-                return {
-                    key: match[1],   // The unique chapter ID used to load the chapter later
-                    title: match[2]  // The readable title (e.g., "Chapter 105")
-                };
-            }
-            return null;
-        } catch (error) {
-            console.log(`[MangaProcesser] CheckNew Error: ${error}`);
-            return null;
-        }
-    }
+    /**
+     * After getting the picture information, set the picture data than
+     * it will be shown. 
+     * @param data.url {String} The picture url
+     * @param data.headers {Object} Optional, The picture http headers.
+     * @param list {List} A list ot picture information.
+     */ 
+    setDataAt(data);
+    setData(list);
 }
-
 module.exports = MangaProcesser;
