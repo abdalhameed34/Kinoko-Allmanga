@@ -1,11 +1,9 @@
-<page>
-    <list id="manga_list" layout="grid" columns="3" padding="8" spacing="8">
-        <item>
-            <column>
-                <image src="${item.picture}" height="160" scaleType="centerCrop" radius="4" />
-                <text text="${item.title}" textSize="12" maxLines="2" margin="4,4,4,0" bold="true" />
-                <text text="${item.subtitle}" textSize="10" maxLines="1" margin="4,0,4,4" textColor="hex(#888888)" />
-            </column>
-        </item>
-    </list>
-</page>
+<list id="manga_list" layout="grid" columns="3" padding="8" spacing="8">
+    <item>
+        <column>
+            <image src="${item.picture}" height="160" scaleType="centerCrop" radius="4" />
+            <text text="${item.title}" textSize="12" maxLines="2" margin="4,4,4,0" bold="true" />
+            <text text="${item.subtitle}" textSize="10" maxLines="1" margin="4,0,4,4" textColor="hex(#888888)" />
+        </column>
+    </item>
+</list>
