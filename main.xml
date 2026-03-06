@@ -1,0 +1,5 @@
+<list id="manga_list">
+    <item>
+        <text text="${item.title}" textSize="16" />
+    </item>
+</list>
