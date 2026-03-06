@@ -1,60 +1,36 @@
-class ParsedCollection extends Collection {
-    
-    async fetch(url) {
-        let doc = await super.fetch(url);
-        let purl = new PageURL(url);
-        
-        let nodes = doc.querySelectorAll('.manga-card, .series-list .item, div[class*="manga-item"], .card');
-        let results = [];
-        
-        for (let node of nodes) {
-            let item = glib.DataItem.new();
-            item.type = glib.DataItem.Type.Book;
-            
-            let linkNode = node.querySelector('.title a, h3 a, .manga-name a') || node.querySelector('a');
-            if (!linkNode) continue; 
-            
-            item.link = purl.href(linkNode.attr('href'));
-            
-            let titleNode = node.querySelector('.title, h3, h4, .manga-name') || linkNode;
-            item.title = titleNode.text.trim();
-            
-            let subNode = node.querySelector('.chapter a, .latest-chapter, .ep, .status');
-            if (subNode) {
-                item.subtitle = subNode.text.trim();
-            }
-            
-            results.push(item);
-        }
-        return results;
+class Collection extends glib.Collection {
+
+    constructor(data) {
+        super(data);
+        this.url = data.url || data.link;
     }
 
-    // NEW: The reload function explicitly tells Kinoko to draw the items
-    reload(_, cb) {
-        this.fetch(this.url).then((results) => {
+    fetch(url) {
+        return new Promise((resolve, reject) => {
+            let req = glib.Request.new('GET', url);
             
-            // If the scraper found absolutely nothing, inject a fake diagnostic item
-            if (results.length === 0) {
-                let debugItem = glib.DataItem.new();
-                debugItem.title = "DEBUG: No manga found!";
-                debugItem.subtitle = "The HTML loaded, but the CSS selectors didn't match anything.";
-                results.push(debugItem);
-            }
+            // Your exact Chrome User-Agent
+            req.setHeader('User-Agent', 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36');
             
-            this.setData(results);
-            cb.apply(null); // Tells the UI the loading is finished
+            // Your exact Analytics Cookie
+            req.setHeader('Cookie', '_ga_7W9XQ7WXTT=GS2.1.s1772765508$o1$g0$t1772765508$j60$l0$h0; _ga=GA1.1.1488643243.1772765508');
             
-        }).catch((err) => {
-            
-            // If the network or Cloudflare failed entirely, show the error on screen
-            let errItem = glib.DataItem.new();
-            errItem.title = "DEBUG ERROR:";
-            errItem.subtitle = err.message || "Unknown Network Error";
-            
-            this.setData([errItem]);
-            cb.apply(null); 
+            this.callback = glib.Callback.fromFunction(function() {
+                if (req.getError()) {
+                    reject(glib.Error.new(302, "Request error " + req.getError()));
+                } else {
+                    let body = req.getResponseBody();
+                    if (body && !body.includes('cloudflare-challenge') && !body.includes('Just a moment')) {
+                        // Success! Cloudflare let us in.
+                        resolve(glib.GumboNode.parse(body));
+                    } else {
+                        // Cloudflare rejected the disguise.
+                        reject(glib.Error.new(301, "Cloudflare rejected the stolen cookies."));
+                    }
+                }
+            });
+            req.setOnComplete(this.callback);
+            req.start();
         });
-        
-        return true;
     }
 }
