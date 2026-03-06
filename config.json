@@ -1,0 +1,13 @@
+{
+    "name": "AllManga",
+    "icon": "icon.png",
+    "index": "index",
+    "appbar_elevation": 4,
+    "processor": "processor",
+    "extensions": [
+        {
+            "icon": "search",
+            "index": "search"
+        }
+    ]
+}
