@@ -19,7 +19,10 @@ class Collection extends glib.Collection {
                     reject(glib.Error.new(302, "Request error " + req.getError()));
                 } else {
                     let body = req.getResponseBody();
-                    if (body) {
+                    if (body) {console.log("RAW HTML START: \n" + body.substring(0, 500) + "\nRAW HTML END"); 
+    
+    resolve(glib.GumboNode.parse(body));
+}
                         console.log("request complete!");
                         resolve(glib.GumboNode.parse(body));
                     } else {
