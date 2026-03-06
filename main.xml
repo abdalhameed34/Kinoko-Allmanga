@@ -1,13 +1,10 @@
-<column layout_width="match_parent" layout_height="match_parent">
-    <center padding="16">
-        <text text="WIDGET IS RENDERED" textSize="20" textColor="#ff0000" bold="true" />
-    </center>
-
-    <list id="manga_list" layout_weight="1">
+<RefreshLayout id="refresh" layout_width="match_parent" layout_height="match_parent">
+    <list id="list">
         <item>
             <column padding="16">
-                <text text="LIST ITEM: ${item.title}" textSize="18" textColor="#000000" bold="true" />
+                <text text="${item.title}" textSize="18" textColor="#000000" bold="true" />
+                <text text="${item.subtitle}" textSize="14" textColor="#888888" margin="0,4,0,0" />
             </column>
         </item>
     </list>
-</column>
+</RefreshLayout>
