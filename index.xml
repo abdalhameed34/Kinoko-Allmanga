@@ -1,12 +1,7 @@
 <tabs elevation="4" scrollable="true" background="hex(#ffffff)">
-    <tab title="AllManga Test">
-        <list id="manga_list">
-            <item>
-                <column padding="16">
-                    <text text="${item.title}" textSize="18" bold="true" />
-                    <text text="${item.subtitle}" textSize="14" textColor="hex(#888888)" />
-                </column>
-            </item>
-        </list>
-    </tab>
+    <for array="$tabs">
+        <tab title="${item.title}">
+            <widget src="main" data="$item"/>
+        </tab>
+    </for>
 </tabs>
