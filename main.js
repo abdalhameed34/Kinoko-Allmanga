@@ -1,26 +1,25 @@
-class MockCollection extends glib.Collection {
-    constructor(data) {
-        super(data);
-    }
-
-    reload(_, cb) {
-        let item = glib.DataItem.new();
-        item.title = "DATA BINDING WORKS!";
-        item.subtitle = "The XML layout was the culprit.";
-        
-        this.setData([item]);
-        cb(); // Simplified from cb.apply(null) to be as safe as possible
-        return true;
-    }
-}
-
 class MainController extends Controller {
     load(data) {
+        // 1. Find the explicitly sized list
         this.list = this.findElement('manga_list');
-        this.collection = MockCollection.new(data);
         
+        // 2. Use the native glib object directly (no custom classes)
+        let mockCollection = glib.Collection.new();
+        
+        // 3. Override its internal reload function
+        mockCollection.reload = function(page, cb) {
+            let item = glib.DataItem.new();
+            item.title = "THE LIST IS ALIVE!";
+            item.subtitle = "We fixed the silent JS error and layout collapse.";
+            
+            this.setData([item]);
+            cb(); 
+            return true;
+        };
+        
+        // 4. Bind it
         if (this.list) {
-            this.list.setCollection(this.collection);
+            this.list.setCollection(mockCollection);
         }
     }
 }
