@@ -4,8 +4,8 @@ class IndexController extends Controller {
             tabs: [
                 {
                     "title": "AllManga",
-                    "id": "latest",
-                    "url": "https://allmanga.to/search-manga?cty=ALL"
+                    "id": "home",
+                    "url": "https://allmanga.to/manga?cty=ALL"
                 }
             ]
         };
