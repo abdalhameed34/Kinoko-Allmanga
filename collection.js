@@ -7,40 +7,43 @@ class Collection extends glib.Collection {
 
     fetch(url) {
         return new Promise((resolve, reject) => {
-            console.log("start request " + url);
-            let req = glib.Request.new('GET', url);
+            console.log("Starting HeadlessWebView bypass for: " + url);
             
-            // Kept your User-Agent headers, they are good for bypassing basic bot checks
-            req.setHeader('User-Agent', 'Mozilla/5.0 (Linux; Android 6.0; Nexus 5 Build/MRA58N) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/85.0.4183.102 Mobile Safari/537.36');
-            req.setHeader('Accept-Language', 'en-US,en;q=0.9');
-            
-            this.callback = glib.Callback.fromFunction(function() {
-                if (req.getError()) {
-                    reject(glib.Error.new(302, "Request error " + req.getError()));
-                } else {
-                    let body = req.getResponseBody();
-                    if (body) {console.log("RAW HTML START: \n" + body.substring(0, 500) + "\nRAW HTML END"); 
-    
-    resolve(glib.GumboNode.parse(body));
-}
-                        console.log("request complete!");
-                        resolve(glib.GumboNode.parse(body));
+            // 1. Spin up the invisible browser
+            let webview = new HeadlessWebView();
+
+            // 2. What to do when the page finishes loading
+            webview.onloadend = async (currentUrl) => {
+                console.log(`[HeadlessWebView] loadEnd: ${currentUrl}`);
+                
+                try {
+                    // Extract the fully rendered HTML *after* Cloudflare lets us in
+                    let html = await webview.eval("document.querySelector('html').outerHTML");
+                    
+                    // Optional: Get the clearance cookies just in case we need them for images later
+                    let cookies = await webview.getCookies(url);
+                    console.log("[HeadlessWebView] Cloudflare Cookies obtained: ", JSON.stringify(cookies));
+                    
+                    if (html && !html.includes('cloudflare-challenge')) {
+                        console.log("Cloudflare bypassed successfully!");
+                        // Parse the real HTML and send it to your scraper
+                        resolve(glib.GumboNode.parse(html));
                     } else {
-                        reject(glib.Error.new(301, "Response null body"));
+                        reject(glib.Error.new(301, "Still stuck on Cloudflare challenge page."));
                     }
+                } catch (e) {
+                    reject(glib.Error.new(302, "Failed to extract HTML: " + e.message));
                 }
-            });
-            req.setOnComplete(this.callback);
-            req.start();
+            };
+
+            // 3. What to do if the connection outright fails
+            webview.onfail = (failedUrl, error) => {
+                console.log(`[HeadlessWebView] loadFailed: ${failedUrl} | Error: ${error}`);
+                reject(glib.Error.new(302, "WebView failed to load: " + error));
+            };
+
+            // 4. Start the engine and load the target URL
+            webview.load(url);
         });
     }
 }
-
-class ParsedCollection extends Collection {
-    async fetch(url) {
-        let doc = await super.fetch(url);
-        let purl = new PageURL(url); // Helper to resolve relative URLs
-        
-        // Target AllManga's grid/list items. We use a few fallbacks to be safe.
-        let nodes = doc.querySelectorAll('.manga-card, .series-list .item, div[class*="manga-item"], .card');
-        let results = [];
