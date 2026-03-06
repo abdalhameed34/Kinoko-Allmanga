@@ -1,7 +1,9 @@
 <tabs elevation="4" scrollable="true" background="hex(#ffffff)">
     <for array="$tabs">
         <tab title="${item.title}">
-            <widget src="main" data="$item"/>
+            <center>
+                <text text="I AM INSIDE THE TAB!" textSize="20" textColor="hex(#ff0000)" bold="true" />
+            </center>
         </tab>
     </for>
 </tabs>
