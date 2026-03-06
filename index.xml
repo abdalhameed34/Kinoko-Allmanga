@@ -1,9 +1,13 @@
-<tabs elevation="4" scrollable="true" background="hex(#ffffff)">
-    <for array="$tabs">
-        <tab title="${item.title}">
-            <center>
-                <text text="I AM INSIDE THE TAB!" textSize="20" textColor="hex(#ff0000)" bold="true" />
-            </center>
-        </tab>
-    </for>
-</tabs>
+<page background="#ffffff">
+    <list id="manga_list">
+        <item>
+            <row padding="12">
+                <image src="${item.picture}" width="80" height="120" scaleType="centerCrop" radius="4" />
+                <column margin="12,0,0,0">
+                    <text text="${item.title}" textSize="16" bold="true" maxLines="2" />
+                    <text text="${item.subtitle}" textSize="12" textColor="#888888" margin="0,4,0,0" />
+                </column>
+            </row>
+        </item>
+    </list>
+</page>
