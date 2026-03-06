@@ -3,42 +3,27 @@ class Collection extends glib.Collection {
     constructor(data) {
         super(data);
         this.url = data.url || data.link;
-        // 1. Declare the webview at the class level to prevent Garbage Collection
-        this.webview = null; 
     }
 
     fetch(url) {
         return new Promise((resolve, reject) => {
-            console.log("Starting HeadlessWebView bypass for: " + url);
+            let req = glib.Request.new('GET', url);
+            req.setHeader('User-Agent', 'Mozilla/5.0 (Linux; Android 10; SM-G981B) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/80.0.3987.162 Mobile Safari/537.36');
             
-            // 2. Check if HeadlessWebView actually exists in this version of Kinoko
-            if (typeof HeadlessWebView === 'undefined') {
-                reject(glib.Error.new(305, "HeadlessWebView requires Kinoko v4.1.0+"));
-                return;
-            }
-
-            // 3. Assign to 'this' to keep the native memory reference alive
-            this.webview = new HeadlessWebView();
-
-            this.webview.onloadend = async (currentUrl) => {
-                try {
-                    let html = await this.webview.eval("document.querySelector('html').outerHTML");
-                    
-                    if (html && !html.includes('cloudflare-challenge')) {
-                        resolve(glib.GumboNode.parse(html));
+            this.callback = glib.Callback.fromFunction(function() {
+                if (req.getError()) {
+                    reject(glib.Error.new(302, "Request error " + req.getError()));
+                } else {
+                    let body = req.getResponseBody();
+                    if (body) {
+                        resolve(glib.GumboNode.parse(body));
                     } else {
-                        reject(glib.Error.new(301, "Stuck on Cloudflare."));
+                        reject(glib.Error.new(301, "Response null body"));
                     }
-                } catch (e) {
-                    reject(glib.Error.new(302, "Eval error: " + e.message));
                 }
-            };
-
-            this.webview.onfail = (failedUrl, error) => {
-                reject(glib.Error.new(302, "WebView failed: " + error));
-            };
-
-            this.webview.load(url);
+            });
+            req.setOnComplete(this.callback);
+            req.start();
         });
     }
 }
