@@ -1,22 +1,24 @@
-const { ParsedCollection } = require('./collection');
-
 class IndexController extends Controller {
     load() {
-        // 1. Create a data object with the AllManga Latest Updates URL
-        let targetData = glib.DataItem.new();
-        targetData.link = "https://allmanga.to/search-manga?cty=ALL";
-        
-        // 2. Initialize your scraper from collection.js
-        this.collection = ParsedCollection.new(targetData);
-        
-        // 3. Find the list and bind the scraper to it
+        // 1. Find the list directly inside our new tab
         this.list = this.findElement('manga_list');
-        this.list.setCollection(this.collection);
         
-        // 4. Make the items clickable
-        this.list.onItemClick = (item) => {
-            this.openBook(item);
+        // 2. Create an offline, fake collection
+        let mockCollection = glib.Collection.new();
+        mockCollection.reload = function(_, cb) {
+            let item = glib.DataItem.new();
+            item.title = "THE LIST SURVIVED!";
+            item.subtitle = "We can safely put lists inside tabs.";
+            
+            this.setData([item]);
+            cb.apply(null);
+            return true;
         };
+        
+        // 3. Bind the data
+        if (this.list) {
+            this.list.setCollection(mockCollection);
+        }
     }
 }
 
