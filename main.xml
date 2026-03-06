@@ -1,5 +1,0 @@
-<page background="hex(#ff0000)">
-    <center>
-        <text text="THE UI IS WORKING!" textSize="24" textColor="hex(#ffffff)" bold="true" />
-    </center>
-</page>
